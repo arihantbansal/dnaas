@@ -4,13 +4,12 @@ import {
   Keypair,
   Transaction,
   Connection,
-  clusterApiUrl,
 } from "@solana/web3.js";
 
 const createDurableNonce = async (feePayer: Keypair) => {
   const nonceAccountAuth = Keypair.generate();
-  if (!process.env.ALCHEMY) throw new Error("ALCHEMY env var not set");
-  const connection = new Connection(process.env.ALCHEMY, {
+  if (!process.env.RPC) throw new Error("RPC env var not set");
+  const connection = new Connection(process.env.RPC, {
     commitment: "finalized",
   });
   let nonceAccount = Keypair.generate();

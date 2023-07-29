@@ -11,12 +11,15 @@ type Data = {
       }
     | { error: Error };
 };
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   try {
-    const wallet = Keypair.fromSecretKey(base58.decode(process.env.WALLET!));
+    const wallet = Keypair.fromSecretKey(
+      Uint8Array.from(JSON.parse(process.env.WALLET!))
+    );
     const { nonceAccount, nonceAccountAuth } = await createDurableNonce(wallet);
     console.log({
       nonceAccount: nonceAccount.publicKey.toString(),

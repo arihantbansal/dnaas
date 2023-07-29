@@ -1,11 +1,6 @@
 import { Button, Col, Loading, Row, Text } from "@nextui-org/react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import {
-  Connection,
-  Message,
-  PublicKey,
-  Transaction,
-} from "@solana/web3.js";
+import { Connection, Message, PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios";
 import base58 from "bs58";
 import type { NextPage } from "next";
@@ -27,10 +22,11 @@ const Home: NextPage = () => {
     setVisible(false);
     console.log("closed");
   };
+
   const call = async () => {
     if (!wallet || !wallet.publicKey) return;
     setLoading(true);
-    const connection = new Connection(process.env.NEXT_PUBLIC_ALCHEMY!);
+    const connection = new Connection(process.env.NEXT_PUBLIC_RPC!);
 
     try {
       if (wallet.signTransaction) {
@@ -99,52 +95,28 @@ const Home: NextPage = () => {
           marginTop: "2rem",
         }}
       >
-        {/* <Container
-          justify="center"
-          style={{
-            // border: "1px solid red",
-            padding: "0px",
-          }}
-        > */}
         <Text>
           <Text
             h1
             style={{
               fontSize: "8rem",
               marginBottom: "-2rem",
-              // display: "table-caption",
               textAlign: "center",
             }}
           >
-            {"Dont."}
-          </Text>
-
-          <Text
-            h1
-            style={{
-              // marginLeft: "1.5rem",
-              marginBottom: "-2rem",
-              fontSize: "8rem",
-              // display: "table-caption",
-              textAlign: "center",
-            }}
-          >
-            {"Pay."}
+            {"Durable Nonces"}
           </Text>
           <Text
             color="#31d1bf"
             h1
             style={{
-              // marginLeft: "1.5rem",
               fontSize: "8rem",
-              // display: "table-caption",
               textAlign: "center",
             }}
           >
-            {" Rent."}
+            {"As a Service"}
           </Text>
         </Text>
-        {/* </Container> */}
       </Row>
       <Row justify="center">
         {" "}
@@ -156,13 +128,7 @@ const Home: NextPage = () => {
             textAlign: "center",
           }}
           icon={
-            <Image
-              // style={{
-              //   marginRight: "0.1rem",
-              // }}
-              src="/phantom.svg"
-              alt="phantom"
-            />
+            <Image src="/phantom.svg" alt="phantom" height={25} width={25} />
           }
         >
           <ConnectWallet setAddress={setAddress} noToast={false}>
@@ -173,17 +139,36 @@ const Home: NextPage = () => {
               "Connect Wallet"}
           </ConnectWallet>
         </Button>
-        <Button
-          style={{
-            margin: "1rem",
-            fontSize: "1rem",
-          }}
-          onClick={call}
-        >
-          {loading && <Loading color="currentColor" type="spinner" size="sm" />}
-          Testdrive 🪄
-        </Button>
+        {address.length > 0 && (
+          <Button
+            style={{
+              margin: "1rem",
+              fontSize: "1rem",
+            }}
+            onClick={call}
+          >
+            {loading && (
+              <Loading color="currentColor" type="spinner" size="sm" />
+            )}
+            Testdrive 🪄
+          </Button>
+        )}
       </Row>
+      <Button
+        style={{
+          margin: "1rem",
+          fontSize: "1rem",
+        }}
+        onClick={async () => {
+          const data = await axios.get(`/api/user/${address}`);
+          console.log(data);
+          toast.success(`Success!`, {
+            id: "getUserData",
+          });
+        }}
+      >
+        Get Data
+      </Button>
       <Text
         style={{
           color: "GrayText",
@@ -195,7 +180,9 @@ const Home: NextPage = () => {
           fontSize: "1.25rem",
         }}
       >
-        Durable Nonces on Solana
+        Allocate nonce accounts now, execute faster transactions later.
+        <br />
+        Only Possible on Solana.
       </Text>
     </Col>
   );

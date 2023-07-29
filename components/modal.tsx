@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Text, Input, Row, Checkbox } from "@nextui-org/react";
+import { Modal, Button, Text, Input } from "@nextui-org/react";
 
 export default function ModalComponent({
   handler,

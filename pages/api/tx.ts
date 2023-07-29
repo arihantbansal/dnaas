@@ -1,4 +1,3 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import {
   createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
@@ -38,7 +37,9 @@ export default async function handler(
   const { address } = req.body;
   const mint = Keypair.generate();
   const connection = new Connection(clusterApiUrl("devnet"), "finalized");
-  const wallet = Keypair.fromSecretKey(base58.decode(process.env.WALLET!));
+  const wallet = Keypair.fromSecretKey(
+    Uint8Array.from(JSON.parse(process.env.WALLET!))
+  );
 
   const user = new PublicKey(address);
   const { nonceAccount, nonceAccountAuth } = await createDurableNonce(wallet);
@@ -83,7 +84,7 @@ export default async function handler(
   );
   let nonce: string | null = null;
   while (nonce === null) {
-    const connection = new Connection(process.env.ALCHEMY!, "recent");
+    const connection = new Connection(process.env.RPC!, "recent");
     let nonceAccountInfo = await connection.getAccountInfo(
       nonceAccount.publicKey,
       {
