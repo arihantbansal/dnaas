@@ -1,0 +1,30 @@
+html,
+body {
+    padding: 0;
+    margin: 0;
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* example: override wallet button style */
+.wallet-adapter-button:not([disabled]):hover {
+    background-color: #707070;
+}
+* {
+    box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        color-scheme: dark;
+    }
+    body {
+        color: white;
+        background: black;
+    }
+}
