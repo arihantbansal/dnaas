@@ -82,6 +82,7 @@ export default async function handler(
       // [signer1, signer2 ...], // only multisig account will use
     )
   );
+
   let nonce: string | null = null;
   while (nonce === null) {
     const connection = new Connection(process.env.RPC!, "recent");
@@ -102,13 +103,6 @@ export default async function handler(
     }
   }
 
-  console.log(
-    "check",
-    user.toBase58(),
-    ata.toBase58(),
-    mint.publicKey.toBase58(),
-    nonce
-  );
 
   if (!txn) res.json({ result: "error", message: { error: Error("no txn") } });
   if (!process.env.WALLET)

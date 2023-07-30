@@ -2,6 +2,7 @@ import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
 import { NextApiRequest, NextApiResponse } from "next";
 import createDurableNonce from "../../utils/nonce";
+
 type Data = {
   result: "success" | "error";
   message:
