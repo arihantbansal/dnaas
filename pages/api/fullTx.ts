@@ -1,7 +1,7 @@
 import { Transaction, Keypair, SystemProgram } from "@solana/web3.js";
 import base58 from "bs58";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { retrieveNonce } from "./tx";
+import { retrieveNonce } from "./nftTx";
 
 type Data = {
   result: "success" | "error";

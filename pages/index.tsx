@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import ModalComponent from "../components/modal";
 import styles from "../styles/Home.module.css";
 import dynamic from "next/dynamic";
+import { Connection } from "@solana/web3.js";
 
 const WalletDisconnectButtonDynamic = dynamic(
   async () =>
@@ -93,6 +94,40 @@ const Home: NextPage = () => {
     setTxData(e.target.value);
   };
 
+  const submitTx = async () => {
+    setLoading(true);
+    const tx = await axios
+      .post("/api/fullTx", {
+        serializedTransaction: txData,
+        numNonce: userData.numNoncesUsed + 1,
+        signedSeed: signedSeedMessage,
+        noncePubKey: userData.nonces[userData.numNoncesUsed],
+      })
+      .then((res) => res.data);
+    if (tx.result === "success") {
+      toast.success("Tx created successfully");
+    }
+    const signedTx = await wallet.signTransaction!(tx.message);
+    const connection = new Connection(
+      process.env.NEXT_PUBLIC_RPC!,
+      "confirmed"
+    );
+    await wallet.sendTransaction!(signedTx, connection);
+  };
+
+  const createNonces = async () => {
+    setLoading(true);
+    const nonces = await axios
+      .post("/api/createBulkNonces", {
+        address: wallet.publicKey,
+        numNonces: numNoncesToCreate,
+      })
+      .then((res) => res.data);
+    if (nonces.result === "success") {
+      toast.success("Nonces created successfully");
+    }
+  };
+
   return (
     <Col>
       <ModalComponent
@@ -160,6 +195,7 @@ const Home: NextPage = () => {
             <Button
               style={{ marginTop: "2em" }}
               disabled={numNoncesToCreate === 0}
+			  onClick={createNonces}
             >
               Create {numNoncesToCreate} Nonces
             </Button>
@@ -176,7 +212,9 @@ const Home: NextPage = () => {
           </Row>
           <Spacer y={1} />
           <Row justify="center">
-            <Button disabled={txData.length === 0}>Submit Tx</Button>
+            <Button disabled={txData.length === 0} onClick={submitTx}>
+              Submit Tx
+            </Button>
           </Row>
         </>
       )}
