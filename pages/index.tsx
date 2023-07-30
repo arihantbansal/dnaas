@@ -171,6 +171,10 @@ const Home: NextPage = () => {
               onChange={textAreaInputHandler}
             />
           </Row>
+          <Spacer y={1} />
+          <Row justify="center">
+            <Button disabled={txData.length === 0}>Submit Tx</Button>
+          </Row>
         </>
       )}
       <Text
