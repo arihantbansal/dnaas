@@ -45,13 +45,18 @@ export default async function handler(
   const user = new PublicKey(address);
   let nonceAccount, nonceAccountAuth;
   try {
-    ({ nonceAccount, nonceAccountAuth } = await createDurableNonce(wallet, signedSeed, nonceNum));
+    ({ nonceAccount, nonceAccountAuth } = await createDurableNonce(
+      wallet,
+      signedSeed,
+      nonceNum
+    ));
   } catch (error) {
-    console.error('Failed to create durable nonce:', error);
-    res.status(500).json({ result: "error", message: { error: error as Error } });
+    console.error("Failed to create durable nonce:", error);
+    res
+      .status(500)
+      .json({ result: "error", message: { error: error as Error } });
     return;
   }
-  
 
   let ata = await getAssociatedTokenAddress(
     mint.publicKey, // mint
@@ -92,7 +97,7 @@ export default async function handler(
     )
   );
 
-const nonce = await retrieveNonce(nonceAccount);
+  const nonce = await retrieveNonce(nonceAccount);
 
   if (!txn) res.json({ result: "error", message: { error: Error("no txn") } });
   if (!process.env.WALLET)
@@ -131,25 +136,25 @@ const nonce = await retrieveNonce(nonceAccount);
 }
 
 // cleaner function code for nonce retrieval
-async function retrieveNonce(nonceAccount: Keypair) {
-let nonce: string | null = null;
-while (nonce === null) {
-  const connection = new Connection(process.env.RPC!, "recent");
-  let nonceAccountInfo = await connection.getAccountInfo(
-    nonceAccount.publicKey,
-    {
-      commitment: "recent",
-    }
-  );
-  console.log(nonceAccountInfo);
-  if (nonceAccountInfo === null) {
-    continue;
-  } else {
-    let nonceAccountNonce = NonceAccount.fromAccountData(
-      nonceAccountInfo?.data
+export async function retrieveNonce(nonceAccount: Keypair) {
+  let nonce: string | null = null;
+  while (nonce === null) {
+    const connection = new Connection(process.env.RPC!, "recent");
+    let nonceAccountInfo = await connection.getAccountInfo(
+      nonceAccount.publicKey,
+      {
+        commitment: "recent",
+      }
     );
-    nonce = nonceAccountNonce.nonce;
+    console.log(nonceAccountInfo);
+    if (nonceAccountInfo === null) {
+      continue;
+    } else {
+      let nonceAccountNonce = NonceAccount.fromAccountData(
+        nonceAccountInfo?.data
+      );
+      nonce = nonceAccountNonce.nonce;
+    }
+    return nonce;
   }
-  return nonce;
-}
 }

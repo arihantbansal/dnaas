@@ -10,6 +10,7 @@ type Data = {
         address: string;
         numNonces: number;
 		numNoncesUsed: number;
+		nonces: string[];
       }
     | { error: Error };
 };
@@ -20,7 +21,6 @@ export default async function handler(
 ) {
   try {
     const address = req.query.address;
-    const { numNonces } = req.body;
 
     if (!process.env.SUPABASE_URL) {
       throw new Error("Missing SUPABASE_URL");
@@ -36,7 +36,7 @@ export default async function handler(
 
     let { data, error } = await supabase
       .from("nonce_ledger")
-      .select("pub_key, num_nonces, num_nonces_used")
+      .select("pub_key, num_nonces, num_nonces_used, nonces")
       .eq("pub_key", address)
       .maybeSingle();
 
@@ -48,6 +48,7 @@ export default async function handler(
         address: data ? data.pub_key : address,
         numNonces: data ? data.num_nonces : 0,
 		numNoncesUsed: data ? data.num_nonces_used : 0,
+		nonces: data ? data.nonces : [],
       },
     });
   } catch (error) {
