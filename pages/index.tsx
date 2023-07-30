@@ -6,6 +6,7 @@ import {
   Row,
   Spacer,
   Text,
+  useInput,
 } from "@nextui-org/react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Connection, Message, PublicKey, Transaction } from "@solana/web3.js";
@@ -48,13 +49,6 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    const signSeedMessage = async () => {
-		if (wallet.signMessage) {
-			const signedSeed = await wallet.signMessage(Buffer.from(SEED_MESSAGE));
-			setSignedSeedMessage(signedSeed);
-		}
-    };
-
     const fetchUserData = async () => {
       const userData = await axios
         .get(`/api/user/${wallet.publicKey?.toBase58()}`)
@@ -65,10 +59,29 @@ const Home: NextPage = () => {
     };
 
     if (wallet.connected) {
-      signSeedMessage();
       fetchUserData();
     }
   }, [wallet, wallet.connected, wallet.publicKey]);
+
+  useEffect(() => {
+    const signSeedMessage = async () => {
+      if (wallet.signMessage) {
+        try {
+          const signedSeed = await wallet.signMessage(
+            Buffer.from(SEED_MESSAGE)
+          );
+          setSignedSeedMessage(signedSeed);
+        } catch (e) {
+          console.log(e);
+          toast.error("Error signing message");
+        }
+      }
+    };
+
+    if (wallet.connected && !wallet.disconnecting) {
+      signSeedMessage();
+    }
+  }, [wallet, wallet.connected]);
 
   const inputHandler = (e: any) => {
     e.preventDefault();
@@ -135,12 +148,15 @@ const Home: NextPage = () => {
             <Input
               clearable
               bordered
+              label="Number of Nonces"
               initialValue="1"
               type="number"
               value={numNoncesToCreate}
               onChange={inputHandler}
             />
           </Row>
+          <Spacer y={2} />
+          <Row></Row>
         </>
       )}
       <Text
