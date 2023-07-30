@@ -31,7 +31,7 @@ export default async function handler(
     );
 
     let { data: userData, error } = await supabase
-      .from("Nonce Ledger")
+      .from("nonce_ledger")
       .select("pub_key, num_nonces")
       .eq("pub_key", address)
       .maybeSingle();
@@ -40,12 +40,12 @@ export default async function handler(
 
     if (!userData) {
       const { data, error } = await supabase
-        .from("Nonce Ledger")
+        .from("nonce_ledger")
         .insert([{ pub_key: address, num_nonces: numNonces }])
         .select();
     } else {
 	  const { data, error } = await supabase
-		.from("Nonce Ledger")
+		.from("nonce_ledger")
 		.update({ num_nonces: userData.num_nonces + numNonces })
 		.eq("pub_key", address)
 		.select();

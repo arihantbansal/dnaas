@@ -34,7 +34,7 @@ export default async function handler(
     );
 
     let { data, error } = await supabase
-      .from("Nonce Ledger")
+      .from("nonce_ledger")
       .select("pub_key, num_nonces")
       .eq("pub_key", address)
       .maybeSingle();

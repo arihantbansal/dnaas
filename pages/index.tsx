@@ -5,7 +5,7 @@ import axios from "axios";
 import base58 from "bs58";
 import type { NextPage } from "next";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ConnectWallet } from "../components/ct";
 import ModalComponent from "../components/modal";
@@ -18,69 +18,25 @@ const Home: NextPage = () => {
   const [visible, setVisible] = useState(false);
   const handler = () => setVisible(true);
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState<any>({});
   const closeHandler = () => {
     setVisible(false);
     console.log("closed");
   };
 
-  const call = async () => {
-    if (!wallet || !wallet.publicKey) return;
-    setLoading(true);
-    const connection = new Connection(process.env.NEXT_PUBLIC_RPC!);
+  useEffect(() => {
+	const fetchUserData = async () => {
+		const userData = await axios.get(`/api/user/${address}`).then((res) => res.data);
+		if (userData?.result === "success") {
+			setUserData(userData?.message);
+		}
+	}
 
-    try {
-      if (wallet.signTransaction) {
-        const { data: txnData } = await axios.post("/api/tx", {
-          address: wallet.publicKey.toString(),
-        });
-        const { signatures } = txnData.message;
-        console.log(txnData, "signatures");
-        const tx = Transaction.populate(
-          Message.from(base58.decode(txnData.message.tx))
-        );
-        const sigs = tx.signatures.map((s) => {
-          return {
-            key: s.publicKey.toBase58(),
-            signature: s.signature ? base58.encode(s.signature) : null,
-          };
-        });
-        console.log(sigs, "sigs", signatures);
-        signatures.map((s: { key: string; signature: string }) => {
-          console.log(s, "s");
-          s.signature &&
-            tx.addSignature(
-              new PublicKey(s.key),
-              Buffer.from(base58.decode(s.signature))
-            );
-        });
-
-        try {
-          const txid = await connection.sendRawTransaction(tx.serialize(), {
-            preflightCommitment: "recent",
-          });
-          console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`);
-          setExplorerLink(
-            `https://explorer.solana.com/tx/${txid}?cluster=devnet`
-          );
-          toast.success(`Success!`, {
-            id: "done",
-          });
-          setVisible(true);
-          setLoading(false);
-        } catch (e) {
-          let error = e as Error;
-          console.log(error, "error");
-          toast.error(error.message, {
-            id: "err",
-          });
-          setLoading(false);
-        }
-      }
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
+	if (wallet.connected) {
+		fetchUserData();
+	}
+  }, [address, wallet.connected]);
+  
   return (
     <Col>
       <ModalComponent
@@ -145,30 +101,14 @@ const Home: NextPage = () => {
               margin: "1rem",
               fontSize: "1rem",
             }}
-            onClick={call}
           >
             {loading && (
               <Loading color="currentColor" type="spinner" size="sm" />
             )}
-            Testdrive 🪄
+            Add
           </Button>
         )}
       </Row>
-      <Button
-        style={{
-          margin: "1rem",
-          fontSize: "1rem",
-        }}
-        onClick={async () => {
-          const data = await axios.get(`/api/user/${address}`);
-          console.log(data);
-          toast.success(`Success!`, {
-            id: "getUserData",
-          });
-        }}
-      >
-        Get Data
-      </Button>
       <Text
         style={{
           color: "GrayText",
