@@ -9,6 +9,7 @@ type Data = {
     | {
         address: string;
         numNonces: number;
+		numNoncesUsed: number;
       }
     | { error: Error };
 };
@@ -35,7 +36,7 @@ export default async function handler(
 
     let { data, error } = await supabase
       .from("nonce_ledger")
-      .select("pub_key, num_nonces")
+      .select("pub_key, num_nonces, num_nonces_used")
       .eq("pub_key", address)
       .maybeSingle();
 
@@ -46,6 +47,7 @@ export default async function handler(
       message: {
         address: data ? data.pub_key : address,
         numNonces: data ? data.num_nonces : 0,
+		numNoncesUsed: data ? data.num_nonces_used : 0,
       },
     });
   } catch (error) {
