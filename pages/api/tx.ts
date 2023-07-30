@@ -34,7 +34,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { address } = req.body;
+  const { address, signedSeed, nonceNum } = req.body;
   const mint = Keypair.generate();
   const connection = new Connection(clusterApiUrl("devnet"), "finalized");
   const wallet = Keypair.fromSecretKey(
@@ -42,7 +42,11 @@ export default async function handler(
   );
 
   const user = new PublicKey(address);
-  const { nonceAccount, nonceAccountAuth } = await createDurableNonce(wallet);
+  const { nonceAccount, nonceAccountAuth } = await createDurableNonce(
+    wallet,
+    signedSeed,
+    nonceNum
+  );
 
   let ata = await getAssociatedTokenAddress(
     mint.publicKey, // mint
@@ -102,7 +106,6 @@ export default async function handler(
       nonce = nonceAccountNonce.nonce;
     }
   }
-
 
   if (!txn) res.json({ result: "error", message: { error: Error("no txn") } });
   if (!process.env.WALLET)

@@ -26,6 +26,7 @@ export const WalletContextProvider: FC<any> = ({ children }) => {
       new GlowWalletAdapter(),
       new LedgerWalletAdapter(),
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [network]
   );
 

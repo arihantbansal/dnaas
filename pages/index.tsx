@@ -30,6 +30,9 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
+const SEED_MESSAGE =
+  "Sign this message to generate the nonce seed. This allows the application to generate nonce accounts for you.";
+
 const Home: NextPage = () => {
   const [explorerLink, setExplorerLink] = useState("");
   const wallet = useWallet();
@@ -38,12 +41,20 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<any>({});
   const [numNoncesToCreate, setNumNoncesToCreate] = useState(0);
+  const [signedSeedMessage, setSignedSeedMessage] = useState<Uint8Array>();
   const closeHandler = () => {
     setVisible(false);
     console.log("closed");
   };
 
   useEffect(() => {
+    const signSeedMessage = async () => {
+		if (wallet.signMessage) {
+			const signedSeed = await wallet.signMessage(Buffer.from(SEED_MESSAGE));
+			setSignedSeedMessage(signedSeed);
+		}
+    };
+
     const fetchUserData = async () => {
       const userData = await axios
         .get(`/api/user/${wallet.publicKey?.toBase58()}`)
@@ -54,9 +65,10 @@ const Home: NextPage = () => {
     };
 
     if (wallet.connected) {
+      signSeedMessage();
       fetchUserData();
     }
-  }, [wallet.connected, wallet.publicKey]);
+  }, [wallet, wallet.connected, wallet.publicKey]);
 
   const inputHandler = (e: any) => {
     e.preventDefault();

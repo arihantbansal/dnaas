@@ -8,11 +8,14 @@ import {
 
 const createDurableNonce = async (
   feePayer: Keypair,
-  signedSeed: string,
+  signedSeed: Uint8Array,
   nonceNum: number
 ) => {
   const nonceAccountAuth = Keypair.fromSeed(
-    new TextEncoder().encode(`${signedSeed}${nonceNum}`)
+    Uint8Array.from([
+      ...Array.from(signedSeed),
+	  nonceNum,
+    ])
   );
   if (!process.env.RPC) throw new Error("RPC env var not set");
   const connection = new Connection(process.env.RPC, {
