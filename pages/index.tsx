@@ -7,14 +7,10 @@ import {
   Spacer,
   Text,
   Textarea,
-  useInput,
 } from "@nextui-org/react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Connection, Message, PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios";
-import base58 from "bs58";
 import type { NextPage } from "next";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ModalComponent from "../components/modal";
@@ -151,7 +147,7 @@ const Home: NextPage = () => {
             </Text>
           </Row>
           <Spacer y={2} />
-          <Row justify="center">
+          <Row justify="center" align="center">
             <Input
               bordered
               label="Number of Nonces"
@@ -160,6 +156,13 @@ const Home: NextPage = () => {
               value={numNoncesToCreate}
               onChange={inputHandler}
             />
+            <Spacer x={1} />
+            <Button
+              style={{ marginTop: "2em" }}
+              disabled={numNoncesToCreate === 0}
+            >
+              Create {numNoncesToCreate} Nonces
+            </Button>
           </Row>
           <Spacer y={2} />
           <Row justify="center">
