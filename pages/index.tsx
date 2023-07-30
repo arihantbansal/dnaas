@@ -6,6 +6,7 @@ import {
   Row,
   Spacer,
   Text,
+  Textarea,
   useInput,
 } from "@nextui-org/react";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -43,6 +44,7 @@ const Home: NextPage = () => {
   const [userData, setUserData] = useState<any>({});
   const [numNoncesToCreate, setNumNoncesToCreate] = useState(0);
   const [signedSeedMessage, setSignedSeedMessage] = useState<Uint8Array>();
+  const [txData, setTxData] = useState("");
   const closeHandler = () => {
     setVisible(false);
     console.log("closed");
@@ -88,6 +90,11 @@ const Home: NextPage = () => {
     if (e.target.value > 0) {
       setNumNoncesToCreate(e.target.value);
     }
+  };
+
+  const textAreaInputHandler = (e: any) => {
+    e.preventDefault();
+    setTxData(e.target.value);
   };
 
   return (
@@ -146,7 +153,6 @@ const Home: NextPage = () => {
           <Spacer y={2} />
           <Row justify="center">
             <Input
-              clearable
               bordered
               label="Number of Nonces"
               initialValue="1"
@@ -156,7 +162,15 @@ const Home: NextPage = () => {
             />
           </Row>
           <Spacer y={2} />
-          <Row></Row>
+          <Row justify="center">
+            <Textarea
+              bordered
+              label="Encoded Transaction Message"
+              placeholder="Paste raw base64 encoded partially signed transaction message"
+              value={txData}
+              onChange={textAreaInputHandler}
+            />
+          </Row>
         </>
       )}
       <Text
