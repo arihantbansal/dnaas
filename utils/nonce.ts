@@ -6,8 +6,14 @@ import {
   Connection,
 } from "@solana/web3.js";
 
-const createDurableNonce = async (feePayer: Keypair) => {
-  const nonceAccountAuth = Keypair.generate();
+const createDurableNonce = async (
+  feePayer: Keypair,
+  signedSeed: string,
+  nonceNum: number
+) => {
+  const nonceAccountAuth = Keypair.fromSeed(
+    new TextEncoder().encode(`${signedSeed}${nonceNum}`)
+  );
   if (!process.env.RPC) throw new Error("RPC env var not set");
   const connection = new Connection(process.env.RPC, {
     commitment: "finalized",

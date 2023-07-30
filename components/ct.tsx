@@ -16,7 +16,7 @@ export const ConnectWallet = ({
   noToast?: boolean;
   setAddress: any;
 }) => {
-  const { wallet: SolanaWallet, connect, publicKey } = useWallet();
+  const { wallet, connect, publicKey } = useWallet();
   const { visible, setVisible } = useWalletModal();
   const [clicked, setClicked] = useState(false);
   const [fire, setFire] = useState(false);
@@ -26,10 +26,7 @@ export const ConnectWallet = ({
 
   useEffect(() => {
     const req =
-      !publicKey &&
-      SolanaWallet &&
-      SolanaWallet.readyState === "Installed" &&
-      clicked;
+      !publicKey && wallet && wallet.readyState === "Installed" && clicked;
     if (req) {
       try {
         connect();
@@ -38,24 +35,25 @@ export const ConnectWallet = ({
       }
       return;
     }
+
     if (publicKey) {
       if (!noToast) toast.success("Connected to Solana wallet", { id: "conn" });
 
       if (setAddress) setAddress(publicKey.toString());
     }
-  }, [SolanaWallet, visible, publicKey, redirectToWelcome, clicked, fire]);
+  }, [wallet, visible, publicKey, redirectToWelcome, clicked, fire]);
 
   const handleConnect = async () => {
     setClicked(true);
-	
-    if (SolanaWallet) {
+
+    if (wallet) {
       toast.loading("disconnecting...", { id: "dis" });
-      await SolanaWallet.adapter.disconnect();
+      await wallet.adapter.disconnect();
       setAddress("");
       toast.success("disconnected", { id: "dis" });
       return;
     }
-    console.log("Solana Wallet retrieved", SolanaWallet, domain);
+    console.log("Solana Wallet retrieved", wallet, domain);
     setVisible(true);
   };
 

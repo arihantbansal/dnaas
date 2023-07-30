@@ -18,10 +18,15 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
+    const { userData, signedSeed } = req.body;
     const wallet = Keypair.fromSecretKey(
       Uint8Array.from(JSON.parse(process.env.WALLET!))
     );
-    const { nonceAccount, nonceAccountAuth } = await createDurableNonce(wallet);
+    const { nonceAccount, nonceAccountAuth } = await createDurableNonce(
+      wallet,
+      signedSeed,
+      userData.numNonce + 1
+    );
     console.log({
       nonceAccount: nonceAccount.publicKey.toString(),
       nonceAccountAuth: JSON.stringify(nonceAccountAuth),
