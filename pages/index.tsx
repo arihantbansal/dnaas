@@ -15,7 +15,6 @@ import type { NextPage } from "next";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ConnectWallet } from "../components/ct";
 import ModalComponent from "../components/modal";
 import styles from "../styles/Home.module.css";
 import dynamic from "next/dynamic";
@@ -32,7 +31,6 @@ const WalletMultiButtonDynamic = dynamic(
 );
 
 const Home: NextPage = () => {
-  const [address, setAddress] = useState("");
   const [explorerLink, setExplorerLink] = useState("");
   const wallet = useWallet();
   const [visible, setVisible] = useState(false);
@@ -48,7 +46,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       const userData = await axios
-        .get(`/api/user/${address}`)
+        .get(`/api/user/${wallet.publicKey?.toBase58()}`)
         .then((res) => res.data);
       if (userData?.result === "success") {
         setUserData(userData?.message);
@@ -58,7 +56,7 @@ const Home: NextPage = () => {
     if (wallet.connected) {
       fetchUserData();
     }
-  }, [address, wallet.connected]);
+  }, [wallet.connected, wallet.publicKey]);
 
   const inputHandler = (e: any) => {
     e.preventDefault();
@@ -108,7 +106,7 @@ const Home: NextPage = () => {
         {!wallet.connected && <WalletMultiButtonDynamic />}
         {wallet.connected && <WalletDisconnectButtonDynamic />}
       </Row>
-	  <Spacer y={2} />
+      <Spacer y={2} />
       {wallet.connected && (
         <>
           <Row justify="center">
