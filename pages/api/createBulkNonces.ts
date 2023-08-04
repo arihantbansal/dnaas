@@ -1,6 +1,7 @@
 import {
   Connection,
   Keypair,
+  NONCE_ACCOUNT_LENGTH,
   PublicKey,
   SystemProgram,
   Transaction,
@@ -30,7 +31,6 @@ export default async function handler(
       new Uint8Array(JSON.parse(process.env.WALLET!))
     );
     const authority = new PublicKey(address);
-    const lamports = 5000; // Lamports can be set based as per requirements.
 
     const connection = new Connection(process.env.RPC!, "confirmed");
 
@@ -41,11 +41,14 @@ export default async function handler(
       const nonceAccount = Keypair.generate();
 
       const transaction = new Transaction().add(
-        SystemProgram.createNonceAccount({
+        SystemProgram.createAccount({
           fromPubkey: payer.publicKey,
-          noncePubkey: nonceAccount.publicKey,
-          authorizedPubkey: authority,
-          lamports,
+          newAccountPubkey: nonceAccount.publicKey,
+          lamports: await connection.getMinimumBalanceForRentExemption(
+            NONCE_ACCOUNT_LENGTH
+          ),
+          space: NONCE_ACCOUNT_LENGTH,
+          programId: SystemProgram.programId,
         }),
         SystemProgram.nonceInitialize({
           noncePubkey: nonceAccount.publicKey,
@@ -83,13 +86,11 @@ export default async function handler(
         .select();
     }
 
-    res
-      .status(200)
-      .json({
-        result: "success",
-        message: `Successfully created ${amount} nonce accounts`,
-        nonces: nonces,
-      });
+    res.status(200).json({
+      result: "success",
+      message: `Successfully created ${amount} nonce accounts`,
+      nonces: nonces,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
