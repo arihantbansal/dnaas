@@ -84,9 +84,7 @@ const Home: NextPage = () => {
 
   const inputHandler = (e: any) => {
     e.preventDefault();
-    if (e.target.value > 0) {
-      setNumNoncesToCreate(e.target.value);
-    }
+    setNumNoncesToCreate(Number(e.target.value));
   };
 
   const textAreaInputHandler = (e: any) => {
@@ -117,12 +115,15 @@ const Home: NextPage = () => {
 
   const createNonces = async () => {
     setLoading(true);
+    console.log("createNonces");
     const nonces = await axios
-      .post("/api/createBulkNonces", {
+      .post("api/createBulkNonces", {
         address: wallet.publicKey,
-        numNonces: numNoncesToCreate,
+        amount: numNoncesToCreate,
       })
       .then((res) => res.data);
+    console.log("completed creating nonces");
+	console.log(nonces);
     if (nonces.result === "success") {
       toast.success("Nonces created successfully");
     }
@@ -187,6 +188,7 @@ const Home: NextPage = () => {
               bordered
               label="Number of Nonces"
               initialValue="1"
+			  min="0"
               type="number"
               value={numNoncesToCreate}
               onChange={inputHandler}
@@ -195,7 +197,7 @@ const Home: NextPage = () => {
             <Button
               style={{ marginTop: "2em" }}
               disabled={numNoncesToCreate === 0}
-			  onClick={createNonces}
+              onClick={createNonces}
             >
               Create {numNoncesToCreate} Nonces
             </Button>

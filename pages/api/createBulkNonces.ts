@@ -21,7 +21,8 @@ export default async function handler(
     }
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_PUBLIC_ANON_KEY
+      process.env.SUPABASE_PUBLIC_ANON_KEY,
+      { auth: { persistSession: false } }
     );
 
     const { address, amount } = req.body;
@@ -48,7 +49,7 @@ export default async function handler(
         }),
         SystemProgram.nonceInitialize({
           noncePubkey: nonceAccount.publicKey,
-          authorizedPubkey: authority 
+          authorizedPubkey: authority,
         })
       );
 
@@ -84,7 +85,11 @@ export default async function handler(
 
     res
       .status(200)
-      .json({ message: `Successfully created ${amount} nonce accounts` });
+      .json({
+        result: "success",
+        message: `Successfully created ${amount} nonce accounts`,
+        nonces: nonces,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({

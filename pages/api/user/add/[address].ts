@@ -5,9 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 
 type Data = {
   result: "success" | "error";
-  message:
-    | string
-    | { error: Error };
+  message: string | { error: Error };
 };
 
 export default async function handler(
@@ -27,7 +25,8 @@ export default async function handler(
 
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_PUBLIC_ANON_KEY
+      process.env.SUPABASE_PUBLIC_ANON_KEY,
+      { auth: { persistSession: false } }
     );
 
     let { data: userData, error } = await supabase
@@ -44,12 +43,12 @@ export default async function handler(
         .insert([{ pub_key: address, num_nonces: numNonces }])
         .select();
     } else {
-	  const { data, error } = await supabase
-		.from("nonce_ledger")
-		.update({ num_nonces: userData.num_nonces + numNonces })
-		.eq("pub_key", address)
-		.select();
-	}
+      const { data, error } = await supabase
+        .from("nonce_ledger")
+        .update({ num_nonces: userData.num_nonces + numNonces })
+        .eq("pub_key", address)
+        .select();
+    }
 
     res.json({
       result: "success",

@@ -9,8 +9,8 @@ type Data = {
     | {
         address: string;
         numNonces: number;
-		numNoncesUsed: number;
-		nonces: string[];
+        numNoncesUsed: number;
+        nonces: string[];
       }
     | { error: Error };
 };
@@ -31,7 +31,8 @@ export default async function handler(
 
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_PUBLIC_ANON_KEY
+      process.env.SUPABASE_PUBLIC_ANON_KEY,
+      { auth: { persistSession: false } }
     );
 
     let { data, error } = await supabase
@@ -47,8 +48,8 @@ export default async function handler(
       message: {
         address: data ? data.pub_key : address,
         numNonces: data ? data.num_nonces : 0,
-		numNoncesUsed: data ? data.num_nonces_used : 0,
-		nonces: data ? data.nonces : [],
+        numNoncesUsed: data ? data.num_nonces_used : 0,
+        nonces: data ? data.nonces : [],
       },
     });
   } catch (error) {
